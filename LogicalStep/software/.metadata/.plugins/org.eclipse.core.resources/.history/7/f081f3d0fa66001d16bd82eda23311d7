@@ -1,0 +1,111 @@
+/*
+ * "Hello World" example.
+ *
+ * This example prints 'Hello from Nios II' to the STDOUT stream. It runs on
+ * the Nios II 'standard', 'full_featured', 'fast', and 'low_cost' example
+ * designs. It runs with or without the MicroC/OS-II RTOS and requires a STDOUT
+ * device in your system's hardware.
+ * The memory footprint of this hosted application is ~69 kbytes by default
+ * using the standard reference design.
+ *
+ * For a reduced footprint version of this template, and an explanation of how
+ * to reduce the memory footprint for a given application, see the
+ * "small_hello_world" template.
+ *
+ */
+
+#include <stdio.h>
+#include "system.h"
+#include "altera_avalon_pio_regs.h"
+#include "sys/alt_irq.h"
+
+int loop_status = 1;
+
+static void pio_button_ISR(void * context, alt_u32 id) {
+
+	//clear the ISR so it's not always on
+	IOWR(LED_PIO_BASE, 0, 0x0);
+
+	//set how long we want the timer to count down for
+	/*
+	 * the second parameter is the period
+	 * the 3rd parameter is how long we want to count down for in the timer core
+	 */
+	IOWR(TIMER_0_BASE, 2, 500);
+
+	/*
+	 * start the timer
+	 * writting a 1 into the 2nd parameter means that if the timer is interupted
+	 * it will reset.
+	 *
+	 * we write 0b101 -> the first one tells use we the start condition, the last 1 means it will generate a isr
+	 */
+	IOWR(TIMER_0_BASE, 1, 0b101);
+
+	//set the flag
+	loop_status = 0;
+
+}
+
+static void pio_timer_ISR(void * context, alt_u32 id) {
+	/*
+	 * 7 -> 3 button (4th position)
+	 * 11 -> 2 button (3rd postion)
+	 * 13 -> 1 button (2nd position)
+	 * 14 -> 0 button (1st position)
+	 */
+
+	//get the button value
+	//the 0 specifies that we are reading the actual data in the register
+	int button_val = IORD(BUTTON_PIO_BASE, 0);
+
+	//if the button was clicked down we dont want to read when we release
+	if (button_val != 15) {
+		printf("%d\n", IORD(BUTTON_PIO_BASE, 0));
+	}
+
+}
+
+int main() {
+
+	printf("Hello from Nios II!\n");
+
+	/*
+	 * The edge capture determines which button has been pressed,
+	 * in the register is has 4 bits, when any one of these bits are set to high
+	 * the interrupt corresponding to the position of that bit will be called.
+	 * Initially we set it to 0 because we don't want any garbage values
+	 */
+	IOWR(BUTTON_PIO_BASE, 3, 0x0);
+
+	/*
+	 * We want to register the interrupts for every single button.
+	 * we us 0b1111 because we want to enable single button on the board to have
+	 * an interrupt
+	 */
+	IOWR(BUTTON_PIO_BASE, 2, 0b1111);
+
+	//registering the IRQ
+	alt_irq_register(BUTTON_PIO_IRQ, (void *) 0, pio_button_ISR);
+	alt_irq_register(BUTTON_PIO_IRQ, (void *) 0, pio_timer_ISR);
+
+	//the documentation says we need to set the ITO to 1 when the timer is done
+	IOWR(TIMER_0_BASE, 0, 0b01);
+
+	while (loop_status) {
+
+	}
+	printf("do some shit \n");
+
+	return 0;
+}
+
+/*
+ * 1.register interupts for button and timer core
+ * 2.set interupts mask for the buttons
+ * 3.clear the edge(3 shit)
+ * 4.in button interupt start timer(when it hits 0) it will call the timer interups
+ * 5.
+ * 6.
+ * 7.
+ */

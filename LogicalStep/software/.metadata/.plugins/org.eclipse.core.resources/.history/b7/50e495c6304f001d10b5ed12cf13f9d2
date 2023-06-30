@@ -1,0 +1,203 @@
+/*
+ * "Hello World" example.
+ *
+ * This example prints 'Hello from Nios II' to the STDOUT stream. It runs on
+ * the Nios II 'standard', 'full_featured', 'fast', and 'low_cost' example
+ * designs. It runs with or without the MicroC/OS-II RTOS and requires a STDOUT
+ * device in your system's hardware.
+ * The memory footprSint of this hosted application is ~69 kbytes by default
+ * using the standard reference design.
+ *
+ * For a reduced footprint version of this template, and an explanation of how
+ * to reduce the memory footprint for a given application, see the
+ * "small_hello_world" template.
+ *
+ */
+
+#include <stdio.h>
+#include "system.h"
+#include "sys/alt_irq.h"
+#include "altera_avalon_pio_regs.h"
+
+volatile int led_mask = 0;
+static void lab1_isr(void * context, alt_u32 id){
+	led_mask |= (1<<2);
+	//this will tell us when the isr is running
+	IOWR(LED_PIO_BASE,0,led_mask);
+	//SENDING A SMALL BLIP TO RESPONSE OUT
+	//THE INTERUPT RUN HERE
+	//SETTING IT TO ON
+	IOWR(RESPONSE_OUT_BASE,0,1);
+	//SETTING IT TO OFF
+	IOWR(RESPONSE_OUT_BASE,0,0); //SETTING THE
+	//CLEARS THE STIMULAS DOESNT CONFLICT WITH THE NEXT ONES INPUT
+	IOWR(STIMULUS_IN_BASE,3,0);
+	//TURN OFF THE LED BECAUSE ISR IS DONE
+	led_mask &= ~(1<<2); //CHANGING THE VALUE TO 0
+	IOWR(LED_PIO_BASE,0,led_mask);
+
+
+}
+
+int background()
+{
+int j;
+int x = 0;
+int grainsize = 4;
+int g_taskProcessed = 0;
+
+for(j = 0; j < grainsize; j++)
+{
+g_taskProcessed++;
+}
+return x;
+}
+
+int main()
+{
+  printf("Hello from Nios II!\n");
+
+
+
+//  //resetting the edge capture to 0, clearing previous isr
+//  IOWR(STIMULUS_IN_BASE,3,0);
+//  //when the egm sends the signal it will call the irq
+//  alt_irq_register(STIMULUS_IN_IRQ,(void *) 0,lab1_isr);
+//  //enable stimulus_in so we can use it in the isr
+//    IOWR(STIMULUS_IN_BASE,2,1);
+
+  if(IORD(SWITCH_PIO_BASE,0) % 2 == 0){
+	 	alt_irq_register(STIMULUS_IN_IRQ,(void *) 0,lab1_isr);
+  }
+
+  //running tests on different period lengths
+    int i;
+    for(i=700;i<=5000;i+=2){
+
+        //INTERUPT MODE
+        if(IORD(SWITCH_PIO_BASE,0) % 2 == 0){
+		    //resetting the edge capture to 0, clearing previous isr
+		    IOWR(STIMULUS_IN_BASE,3,0);
+		    //when the egm sends the signal it will call the
+		    //enable stimulus_in so we can use it in the isr
+		    IOWR(STIMULUS_IN_BASE,2,1);
+
+		    led_mask |= (1<<1);
+			IOWR(LED_PIO_BASE,0,led_mask);
+			//turn the led off
+			led_mask &= ~(1<<1);
+			IOWR(LED_PIO_BASE,0,led_mask);
+
+
+			unsigned int background_tasks;
+			background_tasks = 0;
+			unsigned int pulse_width = i/2;
+			//turn it on, so that we know its a new test
+
+			//TURN THE EGM OFF (disable, set data, then on)
+			IOWR(EGM_BASE,0,0);
+			//setting the data that egm will use for the test (period and pulse width)
+			IOWR(EGM_BASE,2,i);
+			IOWR(EGM_BASE,3,pulse_width);
+			//turning the egm on, we already set the data
+			IOWR(EGM_BASE,0,1);
+
+		    //WAITING FOR THE INTERUPT TO FINSIH
+		    while(IORD(EGM_BASE,1)!= 0){
+
+                //THIS IS INDICATE A BACKROUND TASK
+                led_mask |= (1<<0);
+                IOWR(LED_PIO_BASE,0,led_mask);
+                //running the background
+                background();
+                //turn the led off
+                led_mask &= ~(1<<0);
+                IOWR(LED_PIO_BASE,0,led_mask);
+
+                //adding to the background task counter
+                background_tasks ++;
+
+
+		    }
+
+		    double latency = IORD(EGM_BASE,4);
+		    int multi = IORD(EGM_BASE,6);
+		    int missed = IORD(EGM_BASE,5);
+		    printf("%f, %d, %d, %d, %d, %d \n",latency,multi,missed,i,background_tasks,pulse_width);
+		}
+        //POLLING
+        else{
+			//TURN THE EGM OFF (disable, set data, then on)
+			IOWR(EGM_BASE,0,0);
+			//setting the data that egm will use for the test (period and pulse width)
+			IOWR(EGM_BASE,2,i);
+			IOWR(EGM_BASE,3,i/2);
+			//turning the egm on, we already set the data
+			IOWR(EGM_BASE,0,1);
+
+            //WAITING FOR THE STIM
+            while(IORD(STIMULUS_IN_BASE,0) == 0 && IORD(EGM_BASE,1)){
+                if(IORD(EGM_BASE, 1) == 0){
+                	break;
+                }
+            }
+            //SENDING THE RESPONSE TO EGM
+            IOWR(RESPONSE_OUT_BASE,0,1);
+            IOWR(RESPONSE_OUT_BASE,0,0);
+
+            //FIGURE OUT HOW MANY TIMES WE WRITE THE BACKROUND TASK
+            int count_initial = 0;
+
+            //THE PULSE IS HIGH, HALF THE PERIOD
+            while(IORD(STIMULUS_IN_BASE,0) == 1 && IORD(EGM_BASE,1)){
+
+                background();
+                count_initial ++;
+            }
+            //THE PULSE IS LOW, HALF THE PERIOD
+            while(IORD(STIMULUS_IN_BASE,0) == 0 && IORD(EGM_BASE,1)){
+
+                background();
+                count_initial ++;
+            }
+            //WRITTING TO THE RESPONSE AGAIN BECAUSE WE HAVE FINISHED THE CYCLE
+//            IOWR(RESPONSE_OUT_BASE,0,1);
+//            IOWR(RESPONSE_OUT_BASE,0,0);
+
+            //RUNNING AFTER THE FIRST TIME
+            int c = 0;
+            c = count_initial - 1;
+
+
+            //DOING BACKROUND TASKS
+            //IF EGM IS SENDING SIGNALS
+            while(IORD(EGM_BASE,1)){
+                //IF THE STIMULAS IS HIGH
+                //RUN BACKROUND TASKS 3 TIMES
+                if(IORD(STIMULUS_IN_BASE,0)){
+                    //SENDING THE RESPONSE TO EGM
+                    IOWR(RESPONSE_OUT_BASE,0,1);
+                    IOWR(RESPONSE_OUT_BASE,0,0);
+                    //RUN THE BACKROUND TASK 3 TIMES
+                    int k;
+                    for(k=0; k < c; k++){
+                    //RUN BACKROUND TASKS
+                    	background();
+                    	count_initial++;
+
+                    }
+                }
+            }
+            double latency = IORD(EGM_BASE,4);
+            int multi = IORD(EGM_BASE,6);
+            int missed = IORD(EGM_BASE,5);
+            printf("%f, %d, %d, %d, %d, %d \n",latency,multi,missed,i,count_initial,i/2);
+        }
+	}
+    return 0;
+}
+
+
+
+
+

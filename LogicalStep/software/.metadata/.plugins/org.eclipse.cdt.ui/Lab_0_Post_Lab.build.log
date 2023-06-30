@@ -1,0 +1,20 @@
+12:56:23 **** Incremental Build of configuration Nios II for project Lab_0_Post_Lab ****
+make all 
+Info: Building ../Lab_0_Post_Lab_bsp/
+C:/Software/Altera/15.1/nios2eds/bin/gnu/H-x86_64-mingw32/bin/make --no-print-directory -C ../Lab_0_Post_Lab_bsp/
+[BSP build complete]
+Info: Compiling hello_world.c to obj/default/hello_world.o
+nios2-elf-gcc -xc -MP -MMD -c -I../Lab_0_Post_Lab_bsp//HAL/inc -I../Lab_0_Post_Lab_bsp/ -I../Lab_0_Post_Lab_bsp//drivers/inc  -pipe -D__hal__ -DALT_NO_INSTRUCTION_EMULATION -DALT_SINGLE_THREADED    -O0 -g -Wall   -mno-hw-div -mhw-mul -mno-hw-mulx  -o obj/default/hello_world.o hello_world.c
+In file included from ../Lab_0_Post_Lab_bsp//drivers/inc/altera_avalon_pio_regs.h:34:0,
+                 from hello_world.c:19:
+hello_world.c: In function 'main':
+../Lab_0_Post_Lab_bsp//HAL/inc/io.h:75:3: error: void value not ignored as it ought to be
+   __builtin_stwio (__IO_CALC_ADDRESS_NATIVE ((BASE), (REGNUM)), (DATA))
+   ^
+hello_world.c:30:18: note: in expansion of macro 'IOWR'
+   int egm_base = IOWR(EGM_BASE,0,1);
+                  ^
+make: *** [obj/default/hello_world.o] Error 1
+
+12:56:25 Build Finished (took 1s.488ms)
+

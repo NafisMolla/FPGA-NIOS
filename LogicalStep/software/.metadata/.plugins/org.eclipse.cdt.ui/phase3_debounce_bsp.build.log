@@ -1,0 +1,6 @@
+21:37:12 **** Clean-only build of configuration Nios II for project phase3_debounce_bsp ****
+make clean 
+[BSP clean complete]
+
+21:37:13 Build Finished (took 766ms)
+

@@ -1,0 +1,89 @@
+20:44:02 **** Incremental Build of configuration Nios II for project testing_FL ****
+make all 
+Info: Building ../testing_FL_bsp/
+C:/Software/Altera/15.1/nios2eds/bin/gnu/H-x86_64-mingw32/bin/make --no-print-directory -C ../testing_FL_bsp/
+[BSP build complete]
+Info: Compiling hello_world.c to obj/default/hello_world.o
+nios2-elf-gcc -xc -MP -MMD -c -I../testing_FL_bsp//HAL/inc -I../testing_FL_bsp/ -I../testing_FL_bsp//drivers/inc  -pipe -D__hal__ -DALT_NO_INSTRUCTION_EMULATION -DALT_SINGLE_THREADED    -O0 -g -Wall   -mno-hw-div -mhw-mul -mno-hw-mulx  -o obj/default/hello_world.o hello_world.c
+hello_world.c: In function 'main_old':
+hello_world.c:213:3: warning: implicit declaration of function 'alt_printf' [-Wimplicit-function-declaration]
+   alt_printf("Error: could not open audio device \n");
+   ^
+hello_world.c:451:9: warning: unused variable 'i' [-Wunused-variable]
+     int i = 0;
+         ^
+hello_world.c:209:15: warning: unused variable 'r_buf' [-Wunused-variable]
+  unsigned int r_buf;
+               ^
+hello_world.c:208:15: warning: unused variable 'l_buf' [-Wunused-variable]
+  unsigned int l_buf;
+               ^
+hello_world.c:197:14: warning: unused variable 'ptr2' [-Wunused-variable]
+  char *ptr, *ptr2;
+              ^
+hello_world.c:196:6: warning: unused variable 'fifospace' [-Wunused-variable]
+  int fifospace;
+      ^
+hello_world.c: In function 'main':
+hello_world.c:549:15: warning: unused variable 'r_buf' [-Wunused-variable]
+  unsigned int r_buf;
+               ^
+hello_world.c:548:15: warning: unused variable 'l_buf' [-Wunused-variable]
+  unsigned int l_buf;
+               ^
+hello_world.c:544:9: warning: unused variable 'fs' [-Wunused-variable]
+  FATFS *fs; /* Pointer to file system object */
+         ^
+hello_world.c:543:30: warning: unused variable 'blk' [-Wunused-variable]
+  uint32_t ofs = 0, sect = 0, blk[2];
+                              ^
+hello_world.c:543:20: warning: unused variable 'sect' [-Wunused-variable]
+  uint32_t ofs = 0, sect = 0, blk[2];
+                    ^
+hello_world.c:543:11: warning: unused variable 'ofs' [-Wunused-variable]
+  uint32_t ofs = 0, sect = 0, blk[2];
+           ^
+hello_world.c:542:23: warning: unused variable 'ft' [-Wunused-variable]
+  static const uint8_t ft[] = { 0, 12, 16, 32 };
+                       ^
+hello_world.c:541:24: warning: unused variable 'blen' [-Wunused-variable]
+  uint32_t s1, s2, cnt, blen = sizeof(Buff);
+                        ^
+hello_world.c:541:19: warning: unused variable 'cnt' [-Wunused-variable]
+  uint32_t s1, s2, cnt, blen = sizeof(Buff);
+                   ^
+hello_world.c:540:11: warning: unused variable 'w1' [-Wunused-variable]
+  uint16_t w1;
+           ^
+hello_world.c:539:19: warning: unused variable 'drv' [-Wunused-variable]
+  uint8_t res, b1, drv = 0;
+                   ^
+hello_world.c:539:15: warning: unused variable 'b1' [-Wunused-variable]
+  uint8_t res, b1, drv = 0;
+               ^
+hello_world.c:538:15: warning: unused variable 'p3' [-Wunused-variable]
+  long p1, p2, p3;
+               ^
+hello_world.c:538:11: warning: unused variable 'p2' [-Wunused-variable]
+  long p1, p2, p3;
+           ^
+hello_world.c:537:14: warning: unused variable 'ptr2' [-Wunused-variable]
+  char *ptr, *ptr2;
+              ^
+hello_world.c:537:8: warning: unused variable 'ptr' [-Wunused-variable]
+  char *ptr, *ptr2;
+        ^
+hello_world.c:536:6: warning: unused variable 'fifospace' [-Wunused-variable]
+  int fifospace;
+      ^
+Info: Linking testing_FL.elf
+nios2-elf-g++  -T'../testing_FL_bsp//linker.x' -msys-crt0='../testing_FL_bsp//obj/HAL/src/crt0.o' -msys-lib=hal_bsp -L../testing_FL_bsp/   -Wl,-Map=testing_FL.map   -O0 -g -Wall   -mno-hw-div -mhw-mul -mno-hw-mulx  -o testing_FL.elf obj/default/fatfs.o obj/default/fatfs_diskio.o obj/default/fatfs_nios2_de0_nano_spi.o obj/default/fatfs_nios2_de1_pio.o obj/default/fatfs_nios2_de1_spi.o obj/default/ff.o obj/default/hello_world.o obj/default/monitor.o obj/default/uart_nios2.o -lm -msys-lib=m
+nios2-elf-insert testing_FL.elf --thread_model hal --cpu_name nios2_gen2_0 --qsys true --simulation_enabled false --id 0 --sidp 0x1001148 --timestamp 1663183111 --stderr_dev jtag_uart_0 --stdin_dev jtag_uart_0 --stdout_dev jtag_uart_0 --sopc_system_name QD1 --quartus_project_dir "C:/Users/nmolla/ECE-224/LogicalStep" --jdi ../..//output_files/LogicalStep_top.jdi --sopcinfo C:/Users/nmolla/ECE-224/LogicalStep/software/testing_FL_bsp/../../QD1.sopcinfo
+Info: (testing_FL.elf) 87 KBytes program size (code + initialized data).
+Info:                  8097 KBytes free for stack + heap.
+Info: Creating testing_FL.objdump
+nios2-elf-objdump --disassemble --syms --all-header --source testing_FL.elf >testing_FL.objdump
+[testing_FL build complete]
+
+20:44:04 Build Finished (took 2s.0ms)
+

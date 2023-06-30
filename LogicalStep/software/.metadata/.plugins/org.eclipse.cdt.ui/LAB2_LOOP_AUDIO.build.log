@@ -1,0 +1,9 @@
+22:11:55 **** Incremental Build of configuration Nios II for project LAB2_LOOP_AUDIO ****
+make all 
+Info: Building ../LAB2_LOOP_AUDIO_bsp/
+C:/Software/Altera/15.1/nios2eds/bin/gnu/H-x86_64-mingw32/bin/make --no-print-directory -C ../LAB2_LOOP_AUDIO_bsp/
+[BSP build complete]
+[LAB2_LOOP_AUDIO build complete]
+
+22:11:56 Build Finished (took 859ms)
+
